@@ -1,0 +1,87 @@
+services:
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: db-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Bind apenas em localhost — sem exposição para a rede
+      - "127.0.0.1:5432:5432"
+    networks:
+      - db_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── MySQL ──────────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.4
+    container_name: db-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DB:-app}
+      - MYSQL_USER=${MYSQL_USER:-app}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      # Bind apenas em localhost — sem exposição para a rede
+      - "127.0.0.1:3306:3306"
+    networks:
+      - db_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── SQL Server (Microsoft) ─────────────────────────────────────────────────
+  # NOTA: Requer aceitar o EULA da Microsoft (ACCEPT_EULA=Y).
+  # Edição gratuita: Developer ou Express (veja MSSQL_PID abaixo).
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db-sqlserver
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_PID=${MSSQL_PID:-Developer}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    ports:
+      # Bind apenas em localhost — sem exposição para a rede
+      - "127.0.0.1:1433:1433"
+    networks:
+      - db_net
+
+  # ── Adminer (GUI web para todos os bancos) ─────────────────────────────────
+  adminer:
+    image: adminer:latest
+    container_name: db-adminer
+    restart: unless-stopped
+    ports:
+      # Acessado via Caddy: adminer.devdaniel.home.arpa
+      - "127.0.0.1:8080:8080"
+    networks:
+      - db_net
+    depends_on:
+      - postgres
+      - mysql
+
+volumes:
+  postgres_data:
+  mysql_data:
+  sqlserver_data:
+
+networks:
+  db_net:
+    driver: bridge

@@ -1,0 +1,52 @@
+# Exemplo de hardware-configuration.nix
+#
+# NÃO use este arquivo diretamente. Ele é apenas referência da estrutura esperada.
+# Após instalar o NixOS, copie o arquivo gerado automaticamente:
+#
+#   sudo cp /etc/nixos/hardware-configuration.nix \
+#            ~/repo/hosts/devdaniel/hardware-configuration.nix
+#
+# O arquivo real (sem .example) está no .gitignore e NÃO será commitado.
+
+{ config, lib, pkgs, modulesPath, ... }:
+
+{
+  imports = [
+    (modulesPath + "/installer/scan/not-detected.nix")
+  ];
+
+  # ── CPU ───────────────────────────────────────────────────────────────────
+  # Descomente conforme seu processador:
+  # hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  # hardware.cpu.amd.updateMicrocode   = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  # ── Boot ──────────────────────────────────────────────────────────────────
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules          = [];
+  boot.kernelModules                 = [ "kvm-intel" ]; # ou kvm-amd
+  boot.extraModulePackages           = [];
+
+  # ── Sistema de arquivos ───────────────────────────────────────────────────
+  # Ajuste os UUIDs conforme seu sistema (use: lsblk -f)
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/SUBSTITUA-PELO-UUID-REAL";
+    fsType = "ext4";
+  };
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/SUBSTITUA-PELO-UUID-EFI";
+    fsType = "vfat";
+    options = [ "fmask=0077" "dmask=0077" ];
+  };
+
+  # ── Swap ──────────────────────────────────────────────────────────────────
+  swapDevices = [];
+  # Alternativa: swapfile
+  # swapDevices = [{ device = "/swapfile"; size = 8192; }];
+
+  # ── Rede ──────────────────────────────────────────────────────────────────
+  networking.useDHCP = lib.mkDefault true;
+
+  # ── Plataforma ────────────────────────────────────────────────────────────
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+}

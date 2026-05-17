@@ -1,3 +1,19 @@
 .aider*
-.env
 home/.config/fish/fish_variables
+
+# ── Secrets — NUNCA comitar ────────────────────────────────────────────────
+.env
+**/.env
+*.secrets
+
+# ── Hardware config real — gerada pelo NixOS installer ────────────────────
+# Copie de /etc/nixos/hardware-configuration.nix mas não comite
+hosts/devdaniel/hardware-configuration.nix
+
+# ── Nix build artifacts ───────────────────────────────────────────────────
+result
+result-*
+
+# ── Temporários ───────────────────────────────────────────────────────────
+*.bak
+*.tmp

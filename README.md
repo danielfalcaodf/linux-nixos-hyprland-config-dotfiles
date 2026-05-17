@@ -1,372 +1,386 @@
-<div align="center"><img src="home/.config/fastfetch/logo_nixos.png"></div>
-<h1 align="center">NixOS & Hyprland with Catppuccin Macchiato Theme Configuration</h1>
-
 <div align="center">
-
-![nixos](https://img.shields.io/badge/NixOS-24273A.svg?style=flat&logo=nixos&logoColor=CAD3F5)
-![nixpkgs](https://img.shields.io/badge/nixpkgs-unstable-informational.svg?style=flat&logo=nixos&logoColor=CAD3F5&colorA=24273A&colorB=8aadf4)
-![linux kernel](https://img.shields.io/badge/kernel-zen-informational.svg?style=flat&logo=linux&logoColor=f4dbd6&colorA=24273A&colorB=b7bdf8)
-![hyprland](https://img.shields.io/badge/hyprland-stable-informational.svg?style=flat&logo=wayland&logoColor=eed49f&colorA=24273A&colorB=91d7e3)
-![rust](https://img.shields.io/badge/rust-stable-informational.svg?style=flat&logo=rust&logoColor=f5a97f&colorA=24273A&colorB=f5a97f)
-
+  <img src="home/.config/fastfetch/logo_nixos.png" width="100">
+  <h1>devdaniel — NixOS Homelab + Workstation</h1>
+  <p>Configuração declarativa, modular e segura para NixOS com Hyprland, Docker, Caddy e acesso remoto open-source.</p>
 </div>
 
-![Showcase Gif](home/Pictures/Records/record.gif)
+---
 
-## Table of Contents
-- [About](#-about)
-- [Showcase](#-showcase)
-- [Components](#-components)
-- [Features](#-features)
-- [Installation](#-installation)
-- [Keybindings](#️-keybindings)
-- [Useful aliases in Fish Shell](#-useful-aliases-in-fish-shell)
-- [AI Tools and Services](#-ai-tools-and-services)
-- [Useful info for Rustaceans](#-useful-info-for-rustaceans)
-- [Yubikey on NixOS](#-yubikey-on-nixos)
-- [License](#-license)
+## 📦 Estrutura do Repositório
 
-## 📖 About
+```
+flake.nix                              ← Ponto de entrada do flake
+hosts/devdaniel/
+  configuration.nix                   ← Config principal do host
+  hardware-configuration.nix.example  ← Exemplo (o real é gitignored)
+  hardware-configuration.nix          ← ⚠️ VOCÊ cria este (ver abaixo)
+home/
+  daniel.nix                          ← Home Manager (shell, git, apps)
+modules/
+  system/    nix-settings, users, networking, firewall, ssh
+  desktop/   hyprland, audio, fonts
+  dev/       packages
+  homelab/   docker, caddy, dns-local
+  remote-access/  rustdesk, xrdp-xfce, wayvnc
+stacks/
+  portainer/   docker-compose.yml + .env.example
+  n8n/         docker-compose.yml + .env.example
+  databases/   docker-compose.yml + .env.example
+nixos/         ← Configuração original de referência (não altere)
+```
 
-This repository houses my NixOS Linux ❄️ flake configuration, featuring the Hyprland window manager and adorned with the stylish Catppuccin Macchiato theme. I rely on this setup as my daily driver for work and programming, primarily in Rust 🦀. Feel free to utilize it in its entirety or borrow specific components for your own configuration.
+---
 
-> [!NOTE]
-> It's essential to note that this configuration is not minimalistic or lightweight and may require some disk space and knowledge to understand. If you're looking for something simpler, this configuration may not be suitable for you.
+## 🖥️ Host alvo
 
-This system leverages cutting-edge channels and versions of software to provide you with the latest updates and features. Notably, it utilizes:
+| Parâmetro | Valor |
+|-----------|-------|
+| Hostname | `devdaniel` |
+| Usuário | `daniel` |
+| Timezone | `America/Sao_Paulo` |
+| Domínio local | `devdaniel.home.arpa` |
+| Padrão de apps | `app.devdaniel.home.arpa` |
 
-- **flake** (An experimental feature of the Nix package manager)
-- ~~**nur** (The Nix User Repository)~~ *currently disabled
-- **nixpkgs**: unstable
-- **rust**: stable version
+---
 
-This approach ensures that you stay on the forefront of technology, receiving the most recent software advancements promptly.
-> [!WARNING]
-> However, it's important to note that this emphasis on bleeding-edge software may impact the stability of the system.
+## 🚀 Como usar
 
-> [!IMPORTANT]
-> Please note that the system utilizes **Podman** instead of **Docker** for containerization due to various reasons, primarily related to security (rootless and daemonless containers), easier migration to Kubernetes, availability of pods, compatibility with systemd, and better security for `distrobox`. If you prefer to use **Docker** instead of **Podman**, you can make the switch by commenting out the **Podman** section in the `nixos/virtualisation.nix` file and uncommenting the **Docker** section. More details on **Docker** configuration in NixOS can be found [here](https://nixos.wiki/wiki/Docker).
+### 1. Editar o repositório em outro PC
 
-> [!NOTE]
-> The system enables AppArmor and additional hardening through kernel LSMs, along with security services such as Fail2Ban and USBGuard. Firejail is also preinstalled for sandboxing desktop applications.
+```bash
+# Clone o repositório
+git clone https://github.com/danielfalcaodf/linux-nixos-hyprland-config-dotfiles.git ~/repo
+cd ~/repo
 
-You have the flexibility to customize these configurations according to your needs by modifying the respective configuration files.
+# Faça suas edições nos módulos desejados
+# Ex: modules/homelab/caddy.nix para adicionar um novo app
 
-## 🌟 Showcase
+# Veja o que mudou
+git diff
 
-> [!IMPORTANT]
-> The showcased images do not reflect the latest version of the system's appearance. The final setup may vary slightly.
+# Commit e push
+git add -A
+git commit -m "feat: adicionar novo serviço no Caddy"
+git push
+```
 
-![Screenshot 1](home/Pictures/Screenshots/screenshot-1.png)
-![Screenshot 2](home/Pictures/Screenshots/screenshot-2.png)
-![Screenshot 3](home/Pictures/Screenshots/screenshot-3.png)
-![Screenshot 4](home/Pictures/Screenshots/screenshot-4.png)
-[Showcase Video](home/Videos/Records/record.mp4)
+### 2. Clonar no NixOS (primeiro uso)
 
-## 🔧 Components
+```bash
+# No NixOS alvo, como root ou usando sudo:
+sudo nix-shell -p git
 
-| Component             | Version/Name                |
-|-----------------------|-----------------------------|
-| Distro                | NixOS                       |
-| Kernel                | Zen                         |
-| Shell                 | Fish                        |
-| Display Server        | Wayland                     |
-| WM (Compositor)       | Hyprland                    |
-| Bar                   | Waybar                      |
-| Notification          | Dunst                       |
-| Launcher              | Rofi-Wayland                |
-| Editor                | Helix                       |
-| Terminal              | Kitty + Starship          |
-| OSD                   | Avizo                       |
-| Night Gamma           | Hyprsunset                  |
-| Fetch Utility         | Fastfetch                   |
-| Theme                 | Catppuccin Macchiato        |
-| Icons                 | Colloid-teal-dark, Numix-Circle |
-| Font                  | JetBrains Mono + Nerd Font Patch |
-| Player                | Pear Desktop + Spotify      |
-| File Browser          | Thunar + Yazi               |
-| Internet Browser      | Qutebrowser, Brave + Vimium + NightTab + Stylus |
-| Mimetypes             | MPV, Imv, Zathura            |
-| Image Editor          | Swappy                      |
-| Screenshot            | Grim + Slurp                |
-| Recorder              | Wl-screenrec                 |
-| Color Picker          | Hyprpicker                  |
-| Clipboard             | Wl-clipboard + Cliphist + Wl-clip-persist    |
-| Idle                  | Hypridle                    |
-| Lock                  | Hyprlock                    |
-| Logout menu           | Wlogout                     |
-| Wallpaper             | Hyprpaper                   |
-| Graphical Boot        | Plymouth + Catppuccin-plymouth |
-| Display Manager       | Greetd + Tuigreet           |
-| Containerization      | Podman                      |
+# Clone para o home do usuário
+git clone https://github.com/danielfalcaodf/linux-nixos-hyprland-config-dotfiles.git ~/repo
+cd ~/repo
+```
 
-And many other useful utilities. The full list can be found in the system configuration files at `nixos` directory.
+### 3. Copiar o hardware-configuration.nix real
 
-## ✨ Features
+```bash
+# O arquivo real foi gerado durante a instalação do NixOS.
+# Copie-o para a pasta do host (este arquivo está no .gitignore):
+sudo cp /etc/nixos/hardware-configuration.nix \
+        ~/repo/hosts/devdaniel/hardware-configuration.nix
 
-- 🔄 **Reproducible**: Built on NixOS, this configuration can be effortlessly reproduced on other machines, ensuring a consistent setup.
+# Verifique se está correto
+cat ~/repo/hosts/devdaniel/hardware-configuration.nix
+# Compare com o exemplo se quiser entender a estrutura:
+cat ~/repo/hosts/devdaniel/hardware-configuration.nix.example
+```
 
-- 🖌️ **Consistent**: Nearly every component has been meticulously styled to adhere to the Catppuccin Macchiato theme, providing a visually cohesive experience.
+### 4. Testar build (sem aplicar)
 
-- ✅ **Complete**: This system is equipped with a wide range of components and utilities, akin to the completeness of operating systems like MacOS or Windows.
+```bash
+cd ~/repo
 
-- 🎨 **Customizable**: Leveraging the power of Linux and Hyprland, this configuration offers extensive customization options, allowing you to tailor your setup to your preferences.
+# Verifica se a configuração compila sem erros
+sudo nixos-rebuild build --flake .#devdaniel
+```
 
-## 🚀 Installation
+### 5. Aplicar a configuração
 
-1. Download and Install NixOS from the [official site](https://nixos.org/download).
-2. Temporarily install ripgrep and fish using the command: `nix-shell -p ripgrep fish --run fish`. You can also use classic bash and grep for the next step without installing fish and ripgrep.
-3. Run the command `rg --hidden FIXME` and change/add lines to match your device, swaps, partitions, peripherals, file systems, etc. in the configuration files. 
+```bash
+cd ~/repo
 
-> [!IMPORTANT]
-> Ensure that you configure USBGuard in the `nixos/usb.nix` file to avoid potential issues. By default, USBGuard blocks all USB devices, which can lead to the disabling of crucial hardware components such as the integrated camera, bluetooth, wifi, etc. To configure USBGuard properly, add your trusted USB devices to the configuration. You can obtain a list of all connected devices by using the `lsusb` command from the `usbutils` package.
+# Aplica a configuração (precisa de sudo)
+sudo nixos-rebuild switch --flake .#devdaniel
+```
 
-> [!WARNING]
-> Failure to configure USBGuard appropriately may result in the inability to connect any USB devices to your machine. If needed, you can also disable USBGuard altogether by setting `services.usbguard.enable` to `false` in the configuration:`services.usbguard.enable = false;`. This step ensures that USBGuard is not actively blocking any USB devices.
+> **Dica:** Crie um alias no fish para facilitar:
+> ```fish
+> alias nixswitch="sudo nixos-rebuild switch --flake ~/repo#devdaniel"
+> ```
+> (já configurado em `home/daniel.nix`)
 
-> [!IMPORTANT]
-> Remember to update the monitor settings in the Hyprland configuration file located at `home/.config/hypr/hyprland.conf`.
+### 6. Atualizar o repositório no NixOS
 
-> [!IMPORTANT]
-> Also, important: If you use disk encryption with LUKS and want to use encrypted swap, you need to enable swap on LUKS. This is usually auto-generated in `/etc/nixos/configuration.nix` as the `boot.initrd.luks.devices."luks-...".device = "/dev/disk/by-uuid/...";` code block, if you set this option up during the NixOS installation process. You can simply copy this snippet to either `nixos/swap.nix`, `nixos/hardware-configuration.nix`, or `nixos/configuration.nix` (Personally, I prefer to copy it to `hardware-configuration.nix`).
-> Alternatively, you can set it up manually or use [swap encryption with a random key](https://nixos.wiki/wiki/Swap#Encrypt_swap_with_random_key).
+```bash
+cd ~/repo
+git pull
+sudo nixos-rebuild switch --flake .#devdaniel
+```
 
-4. To change the default username and/or hostname, run the command `rg --hidden 'xnm'` to find and fix all instances of the username, and `rg --hidden 'isitreal-laptop'` for the hostname.
-> [!IMPORTANT]
-> Make sure to change the username to match yours set during installation to avoid login issues.
+### 7. Fazer rollback
 
-> [!IMPORTANT]
-> Also, don't forget to delete or change to my git settings in `home/.gitconfig`, `home/projects/.gitconfig.personal`, `home/.ssh/config`, and `home/work/.gitconfig.work` files, as they are configured for my personal use.
+```bash
+# Listar gerações disponíveis
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
 
-5. For the first rebuild, enable `nix-command` and `flakes` temporarily if your current system does not already have them (more [here](https://nixos.wiki/wiki/Flakes#Enable_flakes_temporarily)). After the first successful rebuild, this repo keeps both features enabled through `nixos/nix-settings.nix`.
-6. Copy or move all files (with replacements) from the `home` directory to your `$HOME` directory in Linux.
-7. Copy or move all files (with replacements and **sudo** permissions) from the `nixos` directory to `/etc/nixos/`.
+# Voltar para a geração anterior
+sudo nixos-rebuild switch --rollback
 
-> [!IMPORTANT]
-> Ensure that `system.stateVersion = "your_version";` is correctly set to the release version of the initial installation of your system in the `configuration.nix` file.
+# Ou voltar para uma geração específica
+sudo nix-env --switch-generation 42 --profile /nix/var/nix/profiles/system
+sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
+```
 
-> [!IMPORTANT]
-> Also, for security reasons, ensure all files in the `/etc/nixos` directory are owned by **root**. If not, change ownership using the command: `sudo chown -R root:root /etc/nixos`.
+### 8. Atualizar as dependências do flake (update)
 
-8. Run the command `sudo nix flake update --flake /etc/nixos; and sudo nixos-rebuild switch --flake /etc/nixos#your-hostname` or `nswitchu`. If you chose first command, replace `your-hostname` with your hostname before running the command; by default, hostname is set to `isitreal-laptop`.
-9. Post-installation configuration:
+```bash
+cd ~/repo
+nix flake update          # atualiza todos os inputs
+# ou apenas um input:
+nix flake update nixpkgs
+git add flake.lock
+git commit -m "chore: atualizar flake.lock"
+```
 
- - Import GNOME settings along with the theme by executing the following command: `dconf load / < home/.config/gnome_settings_backup.dconf`. Additionally, you can use tools like **gnome-tweaks** or **themechanger** to fine-tune specific theme preferences to your liking.
+---
 
- - Install dictionaries for spellchecking in Qutebrowser by using the similar command in **bash**: `$(find $(nix-store --query --outputs $(which qutebrowser)) -iname '*dictcli.py*' | head -1) install en-US hi-IN`.
-  To obtain a list of all available dictionaries, run: `$(find $(nix-store --query --outputs $(which qutebrowser)) -iname '*dictcli.py*' | head -1) list` in **bash**. 
-  For more information, visit [the Qutebrowser page on the nixos wiki](https://wiki.nixos.org/wiki/Qutebrowser).
+## 🐋 Docker e Stacks
 
- - Apply Catppuccin theme for websites in your browser (Brave, Firefox, Chromium):
-   - Install the Stylus Extension from its [official website](https://add0n.com/stylus.html).
-   - Open the extension's settings page and navigate to the Backup section.
-   - Click "Import" and select the file `home/.config/stylus-catppuccin.json`.
+### Subir o Portainer
 
- - Apply Catppuccin theme for Cool-Retro-Term:
-   - Launch Cool-Retro-Term.
-   - Right-click on the window and select "Settings".
-   - In the General panel, click "Import" and select the file `home/.config/cool-retro-term-style.json`.
-   - Select the imported profile named "catppuccin-theme".
-   - Click "Load" and exit from "Settings".
+```bash
+cd ~/repo/stacks/portainer
+cp .env.example .env
+# edite .env se necessário
+docker compose up -d
 
-  - Apply Open-WebUI Settings (only if you enable `services.open-webui.enable = true` in `nixos/llm.nix`)
-    - Navigate to the Open-WebUI page: `http://localhost:8888`.
-    - Signup or signin if you haven't already done so.  
-    - Click on the user photo in the top-right corner.
-    - From the dropdown menu, select "Admin Panel".
-    - In the Admin Panel, go to the "Settings" tab.
-    - Under the Settings tab, locate and click on the "Database" section.
-    - Click "Import Config from JSON File" and select the configuration file: `home/.config/open-webui-config.json` from your file manager.
+# Acesse via navegador:
+# https://portainer.devdaniel.home.arpa
+```
 
-  - Login to your accounts.
+### Subir o n8n
 
-  - Customize graphical applications to suit your preferences.
+```bash
+cd ~/repo/stacks/n8n
+cp .env.example .env
 
-  After this, you will have a complete system.
+# OBRIGATÓRIO: defina senhas fortes no .env
+nano .env
+# N8N_DB_PASSWORD=...
+# N8N_ENCRYPTION_KEY=$(openssl rand -hex 32)
 
-## ⌨️ Keybindings
+docker compose up -d
 
-### Main
+# Acesse: https://n8n.devdaniel.home.arpa
+```
 
-| Key Combination        | Action                       |
-|------------------------|------------------------------|
-| SUPER + ALT + R        | Resize windows mode          |
-| SUPER + ALT + M        | Move windows mode            |
-| SUPER + H, J, K, L/Arrows     | Change window focus   |
-| SUPER + 1..0           | Change workspace (1-10)      |
-| SUPER + ALT + 1..0     | Change workspace (11-20)|
-| SUPER + SHIFT + 1..0   | Move window to workspace (1-10) |
-| SUPER + SHIFT + ALT + 1..0   | Move window to workspace (11-20) |
-| SUPER + SHIFT + Q      | Kill active window           |
-| SUPER + SHIFT + F      | Toggle floating window       |
-| SUPER + CTRL + F       | Toggle full-screen           |
-| SUPER + SHIFT + O      | Toggle split                 |
-| SUPER + SHIFT + P      | Toggle pseudo                |
-| SUPER + CTRL + E       | Expose all windows using `pyprland` |
-| SUPER + CTRL + M       | Expose all minimized windows using `pyprland` |
-| SUPER + M              | Minimize or restore a window using `pyprland` |
-| SUPER + CTRL + T       | Launch scratchpad with `kitty` using `pyprland` |
-| SUPER + CTRL + V       | Launch scratchpad with `pavucontrol` using `pyprland` |
-| SUPER + T              | Launch `kitty`               |
-| SUPER + D              | Launch `rofi -show drun`     |
-| SUPER + B              | Launch `qutebrowser`         |
-| SUPER + SHIFT + B      | Launch `brave`               |
-| SUPER + F              | Launch `thunar`              |
-| SUPER + ESCAPE         | Launch `wlogout`             |
-| SUPER + S              | Launch `spotify`             |
-| SUPER + Y              | Launch `pear-desktop`        |
-| SUPER + SHIFT + D      | Launch `discord`             |
-| SUPER + SHIFT + T      | Launch `telegram`            |
-| SUPER + SHIFT + L      | Launch `hyprlock`            |
-| SUPER + SHIFT + S      | Take screenshot              |
-| SUPER + E              | Launch `swappy` to edit last taken screenshot |
-| SUPER + R              | Record screen area (MP4)     |
-| SUPER + SHIFT + R      | Record screen area (GIF)     |
-| SUPER + C              | Launch color picker (using `hyprpicker`) |
-| SUPER + Z              | Toggle Zoom (with `pyprland`)|
-| SUPER + V              | Launch clipboard menu (`rofi -dmenu`) |
-| SUPER + SHIFT + V      | Launch clipboard menu (`rofi -dmenu`) (copy to clipboard) |
-| SUPER + X              | Launch clipboard deletion item menu (`rofi -dmenu`) |
-| SUPER + SHIFT + X      | Clear clipboard             |
-| SUPER + U              | Launch bookmark menu (`rofi -dmenu`) |
-| SUPER + SHIFT + U      | Add text from clipboard to bookmark |
-| SUPER + CTRL + U       | Launch bookmark deletion item menu (`rofi -dmenu`) |
-| SUPER + SHIFT + A      | Toggle airplane mode        |
-| SUPER + SHIFT + N      | Toggle notifications        |
-| SUPER + SHIFT + Y      | Toggle bluetooth            |
-| SUPER + SHIFT + W      | Toggle wifi                 |
-| SUPER + P              | Toggle play-pause player    |
-| SUPER + ]              | Player next track           |
-| SUPER + [              | Player previous track       |
+### Subir os bancos de dados
 
-You can find all other keybindings in `/home/.config/hypr/hyprland.conf` in the bind section. All system fish scripts are located at `/home/.config/fish/functions` directory.
+```bash
+cd ~/repo/stacks/databases
+cp .env.example .env
 
-## 🐟 Useful aliases in Fish Shell
+# OBRIGATÓRIO: defina senhas fortes no .env
+nano .env
 
-This system includes a fish shell configuration file (`/home/.config/fish/config.fish`) that provides various aliases to enhance your experience working with it.
+docker compose up -d
 
-Common commands:
-- `cl`: clear the terminal screen (shorthand for `clear`)
-- `lgit`: launch the `lazygit` command-line Git client
-- `ldocker`: launch the `lazydocker` command-line Docker client
-- `conf`: navigate to the `~/.config` directory
+# Adminer (GUI web): https://adminer.devdaniel.home.arpa
+# PostgreSQL: 127.0.0.1:5432
+# MySQL:      127.0.0.1:3306
+# SQL Server: 127.0.0.1:1433
+```
 
-NixOS-specific commands:
-- `nswitch`: rebuild your system using the current flake
-- `nswitchu`: rebuild and update your system using the current flake
-- `nau`: add the unstable channel to the package manager
-- `nsgc`: optimize the nix store and remove unreferenced and obsolete store paths (equivalent to `sudo nix-store --gc`)
-- `ngc`: delete all old generations of user profiles (equivalent to `sudo nix-collect-garbage -d`)
-- `ngc7`: delete generations of user profiles older than 7 days (equivalent to `sudo nix-collect-garbage --delete-older-than 7d`)
-- `ngc14`: delete generations of user profiles older than 14 days (equivalent to `sudo nix-collect-garbage --delete-older-than 14d`)
-- `nixos`: navigate to the `/etc/nixos` directory
-- `store`: navigate to the `/nix/store` directory
+> ⚠️ **Os bancos de dados ficam acessíveis apenas em `127.0.0.1`** — não são expostos para a rede local.
 
-You can customize this configuration by adding more aliases to the file and editing existing ones. This makes your experience more personalized and smoother.
+---
 
-## 🤖 AI Tools and Services
+## 🌐 Adicionar novo app com subdomínio local
 
-This configuration includes several AI/LLM tools and services for local development and experimentation:
+**Passo 1:** Adicione o virtual host no Caddy:
 
-**Local AI Services:**
-- **Ollama** - Local LLM server with pre-loaded models:
-  - Accessible at `http://localhost:11434`
-  - Current defaults include `llama3.2:3b`, `smallthinker:3b`, `gemma3n:e4b`, `gemma3:4b`, `gpt-oss:20b`, `second_constantine/gpt-oss-u:20b`, `qwen3:14b`, `devstral-small-2:24b`, `glm-4.7-flash`, `x/z-image-turbo`, `x/flux2-klein:4b`, and `x/flux2-klein:9b`
-  - Text embedding model: `nomic-embed-text-v2-moe`
-  - CUDA acceleration enabled for GPU inference
-  - See `nixos/llm.nix` for the current model list
-  
-- **SearXNG (Searx fork)** - Privacy-respecting meta search engine:
-  - Accessible at `http://localhost:7777`
-  - Supports HTML and JSON formats
-  - 🔒 Remember to set `SEARX_SECRET_KEY` in your environment file: `home/.config/.env.searxng`
+```nix
+# modules/homelab/caddy.nix
+virtualHosts."meuapp.devdaniel.home.arpa" = {
+  extraConfig = ''
+    tls internal
+    reverse_proxy 127.0.0.1:PORTA_DO_APP
+  '';
+};
+```
 
-- **Open WebUI** - Optional local ChatGPT-style UI for Ollama:
-  - Configured for `http://localhost:8888`
-  - Disabled by default in `nixos/llm.nix`
-  - Supports model switching and prompt templates when enabled
+**Passo 2:** O DNS já resolve automaticamente — `*.devdaniel.home.arpa` aponta para `127.0.0.1` via dnsmasq (`modules/homelab/dns-local.nix`). Nenhuma configuração DNS adicional é necessária.
 
-**AI Tools:**
-- `aichat` - ChatGPT-like CLI and REPL with lots of features
-- `oterm` - TUI LLM client with markdown support
-- `fabric-ai` - Prompt and workflow toolkit for local AI usage
-- `opencode` - Terminal coding agent powered by local and remote models
-- `agent-browser` - Browser automation tool for AI workflows
+**Passo 3:** Aplique a configuração:
 
-> [!NOTE]
-> Ollama and SearXNG are enabled by default. Open WebUI is available in the configuration, but disabled by default.
+```bash
+sudo nixos-rebuild switch --flake ~/repo#devdaniel
+```
 
-To disable them:
-1. Edit `nixos/llm.nix`
-2. Disable services by setting their `enable` attribute to `false`:
+**Passo 4:** Acesse `https://meuapp.devdaniel.home.arpa` no navegador.
+
+> 💡 **TLS interno:** Caddy gera uma CA local automaticamente. Para os navegadores confiarem:
+> ```bash
+> sudo cp /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt \
+>         /usr/local/share/ca-certificates/caddy-local.crt
+> sudo update-ca-certificates
+> ```
+> Ou importe o `root.crt` diretamente no seu navegador.
+
+---
+
+## 🖥️ Acesso Remoto
+
+### RustDesk (recomendado — open-source)
+
+**Na máquina a ser acessada (devdaniel):**
+```bash
+# O cliente RustDesk já está instalado (modules/remote-access/rustdesk.nix)
+# Abra o RustDesk e anote o ID da máquina
+rustdesk
+```
+
+**Para usar servidor self-hosted:**
+
+1. Descomente o bloco `services.rustdesk-server` em `modules/remote-access/rustdesk.nix`
+2. Adicione as portas ao firewall em `modules/system/firewall.nix`:
    ```nix
-   services.ollama.enable = false;
-   services.searx.enable = false;
-   services.open-webui.enable = false;
+   allowedTCPPorts = [ ... 21115 21116 21117 21118 21119 ];
+   allowedUDPPorts = [ 21116 ];
    ```
-3. Remove AI CLI tools from `environment.systemPackages` if desired
-4. Rebuild your configuration with `nswitch`
+3. Aplique: `sudo nixos-rebuild switch --flake ~/repo#devdaniel`
+4. Configure os clientes RustDesk para usar o IP da máquina como servidor
 
-## 🦀 Useful info for Rustaceans
+**No PC cliente:**
+- Baixe o RustDesk: https://rustdesk.com
+- Use o ID mostrado na tela do servidor para conectar
 
-Here are some tips to enhance your Rust experience on this system:
+---
 
-1. **Installation Customization:**
-   This system utilizes [rust-overlay](https://github.com/oxalica/rust-overlay) for Rust installation using the Nix approach. To customize the installation, including modifications to compilation targets, components, channels, or profiles, follow these steps:
+### XRDP + XFCE (fallback RDP — para clientes Windows/Remmina)
 
-   - Locate the `nixos/rust-toolchain.toml` file and make the necessary adjustments based on your requirements.
+**Habilitar:**
 
-   - If you are working on multiple projects with distinct `rust-toolchain.toml` files or need to switch between stable and nightly Rust versions, consider the following options:
-   
-     - Set up a Nix environment using `flake.nix` and [rust-overlay](https://github.com/oxalica/rust-overlay) for each project separately. Utilize `nix develop` or `direnv` to manage project-specific Rust environments.
+```nix
+# hosts/devdaniel/configuration.nix
+homelab.xrdp.enable = true;
+```
 
-     - Alternatively, you can install `rustup` through `environment.systemPackages` and nixpkgs for a system-wide Rust setup. This allows you to manage Rust versions globally through `rustup`.
+```bash
+sudo nixos-rebuild switch --flake ~/repo#devdaniel
+```
 
-2. **Troubleshooting Compilation Issues:**
-   If you encounter issues during Rust compilation, particularly those related to OpenSSL, SQLite, Wayland, or any other program utilized by `pkg-config` in the compilation process (see [here](https://nixos.wiki/wiki/Rust#Building_Rust_crates_that_require_external_system_libraries)), you can employ the `nix-shell -p pkg-config {your_dependency} [other_dependencies] --run fish` command. This command opens a Nix shell with the necessary dependencies, facilitating seamless code compilation. Alternatively, you can employ the approach outlined in the initial section (Installation Customization) by utilizing `flake.nix` with dev shell instead of `nix-shell`.
-   Moreover, when using the Nix Dev shell, be aware that the compilation takes place in the runtime directory, which might be insufficient for certain projects. To address this, you can adjust the runtime directory size in the `nixos/users.nix` file under `services.logind.extraConfig="RuntimeDirectorySize=8G"`.
+**Conectar (Windows):**
+- Abra "Conexão de Área de Trabalho Remota"
+- Endereço: `devdaniel.local` ou IP da máquina
+- Usuário: `daniel` | Senha: a definida com `passwd`
 
-3. **Cross-Compilation:**
-   For cross-compilation, consider using tools like `zigbuild` or `cross`. Personally, I find `zigbuild` preferable, but both are valuable options for your cross-compilation needs.
+**Conectar (Linux com Remmina):**
+```bash
+remmina -c rdp://daniel@devdaniel.local
+```
 
-4. **Cargo and Rust Tools:**
-   This system comes equipped with a variety of cargo and rust tools to ensure a smooth Rust development experience. Some of these tools include:
-   - `rust-analyzer`
-   - `cargo-watch`
-   - `cargo-deny`
-   - `cargo-audit`
-   - `cargo-update`
-   - `cargo-edit`
-   - `cargo-outdated`
-   - `cargo-license`
-   - `cargo-tarpaulin`
-   - `cargo-cross`
-   - `cargo-zigbuild`
-   - `cargo-nextest`
-   - `cargo-spellcheck`
-   - `cargo-modules`
-   - `cargo-bloat`
-   - `cargo-unused-features`
-   - `cargo-feature`
-   - `cargo-features-manager`
-   - `bacon`
+---
 
-5. **Environment Setup:**
-   You can set up your Rust project environment on this system using `nix develop` or `nix-shell` with `default.nix`, `shell.nix`, or `flake.nix` to create a tailored environment for your Rust project (Also, I personally recommend using it alongside with [direnv](https://direnv.net/)).
+### WayVNC (VNC nativo Wayland — acessa sessão Hyprland existente)
 
-## 🔑 Yubikey on NixOS
-This repo contains a NixOS configuration file (`nixos/yubikey.nix`) enabling:
+**Habilitar:**
 
-  - Yubikey authentication with pam_u2f
-  - Passwordless login in greetd, sudo, and hyprlock
+```nix
+# hosts/devdaniel/configuration.nix
+homelab.wayvnc.enable = true;
+```
 
-> [!WARNING]
-> While convenient, using a Yubikey for display managers (like greetd) and screen lockers (like hyprlock) without  additional two-factor or multi-factor authentication (2FA/MFA) has risks. If your Yubikey is lost or stolen, someone could gain full system access before you reset keys. Yubikeys excel at protecting against online attacks but are less secure against offline attacks.
+```bash
+sudo nixos-rebuild switch --flake ~/repo#devdaniel
+```
 
-> [!TIP]
-> For enhanced security and a passwordless experience:
-  You can consider a YubiKey Bio Series device. These keys support FIDO2/WebAuthn and FIDO U2F and has built in fingerprint scanner for strong authentication. Please note, they do not offer Smart card, OpenPGP, or OTP functionality.
+**Iniciar o servidor VNC (no devdaniel, com Hyprland rodando):**
+```bash
+# Via túnel SSH (recomendado — sem expor porta VNC)
+wayvnc 127.0.0.1 5900
 
-## 📜 License
+# Ou como serviço de usuário (habilitado pelo módulo):
+systemctl --user enable --now wayvnc.service
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Acessar via túnel SSH seguro (do PC remoto):**
+```bash
+# 1. Abra o túnel SSH
+ssh -L 5900:127.0.0.1:5900 daniel@devdaniel.local -N &
+
+# 2. Conecte com qualquer cliente VNC
+# Remmina:
+remmina -c vnc://127.0.0.1:5900
+
+# TigerVNC:
+vncviewer 127.0.0.1:5900
+```
+
+> 🔒 **Segurança:** WayVNC em `127.0.0.1` + túnel SSH é a configuração mais segura.
+> Evite expor a porta 5900 diretamente.
+
+---
+
+### RealVNC (alternativa proprietária — não é o padrão)
+
+> ℹ️ RealVNC não está configurado neste repositório. A prioridade é sempre
+> ferramentas open-source (RustDesk, WayVNC, XRDP/FreeRDP).
+>
+> Se precisar do RealVNC, instale manualmente e consulte:
+> https://www.realvnc.com/en/connect/download/vnc/
+
+---
+
+## 🔑 SSH
+
+```bash
+# Conectar na máquina
+ssh daniel@devdaniel.local
+# ou pelo IP:
+ssh daniel@192.168.x.x
+
+# Adicionar sua chave pública (faça no servidor):
+ssh-copy-id -i ~/.ssh/id_ed25519.pub daniel@devdaniel.local
+# ou edite modules/system/users.nix e adicione a chave em:
+# openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAA..." ];
+```
+
+---
+
+## 🔒 Segurança
+
+| Regra | Status |
+|-------|--------|
+| SSH sem senha | ✅ `PasswordAuthentication = false` |
+| SSH sem root | ✅ `PermitRootLogin = "no"` |
+| Secrets fora do repo | ✅ `.env` no `.gitignore` |
+| Bancos apenas localhost | ✅ `127.0.0.1:PORT` |
+| Serviços via Caddy TLS | ✅ `tls internal` |
+| Hardware config gitignored | ✅ |
+
+---
+
+## 🏗️ Apps e portas
+
+| App | URL | Porta interna |
+|-----|-----|---------------|
+| Portainer | https://portainer.devdaniel.home.arpa | 9000 |
+| n8n | https://n8n.devdaniel.home.arpa | 5678 |
+| Uptime Kuma | https://uptime.devdaniel.home.arpa | 3001 |
+| Grafana | https://grafana.devdaniel.home.arpa | 3000 |
+| Dashboard | https://home.devdaniel.home.arpa | 3100 |
+| Adminer | https://adminer.devdaniel.home.arpa | 8080 |
+| PostgreSQL | 127.0.0.1:5432 | — |
+| MySQL | 127.0.0.1:3306 | — |
+| SQL Server | 127.0.0.1:1433 | — |
+
+---
+
+## 📜 Licença
+
+MIT — veja [LICENSE](LICENSE)

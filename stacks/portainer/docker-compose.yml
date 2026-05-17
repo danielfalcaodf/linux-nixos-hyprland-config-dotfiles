@@ -1,0 +1,17 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      # Bind apenas em localhost — acesso via Caddy (portainer.devdaniel.home.arpa)
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9443:9443"
+    environment:
+      - VIRTUAL_HOST=${PORTAINER_HOST:-portainer.devdaniel.home.arpa}
+
+volumes:
+  portainer_data:
