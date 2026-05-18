@@ -270,7 +270,7 @@ local mainMod = "SUPER"
 
 hl.bind(mainMod .. " + ALT + R", hl.dsp.submap("resize"))
 
-hl.submap("resize", function()
+hl.define_submap("resize", function()
     hl.bind("right",  hl.dsp.window.resize({ x =  10, y =   0, relative = true }), { repeating = true })
     hl.bind("left",   hl.dsp.window.resize({ x = -10, y =   0, relative = true }), { repeating = true })
     hl.bind("up",     hl.dsp.window.resize({ x =   0, y = -10, relative = true }), { repeating = true })
@@ -289,7 +289,7 @@ end)
 
 hl.bind(mainMod .. " + ALT + M", hl.dsp.submap("move"))
 
-hl.submap("move", function()
+hl.define_submap("move", function()
     hl.bind("right",  hl.dsp.window.move({ direction = "r" }))
     hl.bind("left",   hl.dsp.window.move({ direction = "l" }))
     hl.bind("up",     hl.dsp.window.move({ direction = "u" }))
