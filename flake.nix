@@ -41,6 +41,9 @@
         ./modules/system/services.nix
         ./modules/system/printing.nix
 
+        # ── VM (apenas na branch feat/vm-compat) ─────────────────────────
+        ./modules/system/virtualbox-guest.nix
+
         # ── Desktop ───────────────────────────────────────────────────────
         ./modules/desktop/hyprland.nix
         ./modules/desktop/audio.nix
