@@ -16,18 +16,21 @@
   };
 
   # Componentes Hyprland
-  programs.hyprlock.enable  = true;
-  services.hypridle.enable  = true;
+  # NOTA: programs.hyprlock.enable = true já ativa services.hypridle automaticamente.
+  # A linha abaixo é redundante mas explícita para documentação de intenção.
+  programs.hyprlock.enable = true;
+  # services.hypridle.enable = true;  # auto-ativado por programs.hyprlock.enable
 
   # XDG portal para Wayland (necessário para screenshare, file picker, etc.)
+  # NOTA: xdg-desktop-portal-hyprland já é adicionado automaticamente por
+  # programs.hyprland.enable (via cfg.portalPackage). Apenas gtk é necessário aqui.
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
-      xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk
     ];
     config = {
-      common.default = [ "hyprland" "gtk" ];
+      common.default  = [ "hyprland" "gtk" ];
       hyprland.default = [ "hyprland" "gtk" ];
     };
   };
@@ -47,8 +50,7 @@
     hyprpaper        # papel de parede
     hyprpicker       # color picker
     hyprcursor       # cursor themes
-    hyprlock         # lockscreen (explícito além de programs.hyprlock)
-    hypridle         # idle daemon (explícito além de services.hypridle)
+    # hyprlock e hypridle NÃO listados aqui: já adicionados por programs.hyprlock.enable
     hyprpolkitagent  # polkit para Hyprland
     hyprsunset       # night light
 

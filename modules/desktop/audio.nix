@@ -21,6 +21,9 @@
   hardware.bluetooth = {
     enable      = true;
     powerOnBoot = false; # ligue manualmente quando necessário
+    # NOTA: settings.General.Enable foi deprecated no BlueZ 5.65+.
+    # O BlueZ moderno habilita perfis (A2DP, HFP, etc.) automaticamente.
+    # Remova este bloco se tiver problemas de áudio Bluetooth.
     settings.General.Enable = "Source,Sink,Media,Socket";
   };
 

@@ -29,7 +29,7 @@
     options   = "--delete-older-than 14d";
   };
 
-  # Otimizar store automaticamente após builds e de forma programada
-  nix.settings.auto-optimise-store = true;
+  # Otimizar store automaticamente (timer diário às 03:45 via systemd).
+  # Preferido a auto-optimise-store que adiciona overhead em cada build.
   nix.optimise.automatic = true;
 }
