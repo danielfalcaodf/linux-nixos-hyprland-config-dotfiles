@@ -56,11 +56,39 @@
       nixswitch = "sudo nixos-rebuild switch --flake ~/repo#devdaniel";
       nixbuild  = "sudo nixos-rebuild build --flake ~/repo#devdaniel";
       nixupdate = "nix flake update ~/repo";
+      nsgc      = "sudo nix-store --gc";
+      ngc       = "sudo nix-collect-garbage -d";
+      ngc7      = "sudo nix-collect-garbage --delete-older-than 7d";
+      ngc14     = "sudo nix-collect-garbage --delete-older-than 14d";
 
       # Docker
       dc        = "docker compose";
       dps       = "docker ps";
       dlogs     = "docker logs -f";
+
+      # AI / Dev
+      ai           = "aichat";
+      ai-commit    = "git diff --staged | aichat -r commit-message | hx";
+      ai-emoji-commit = "git diff --staged | aichat -r emoji-commit-message | hx";
+      ai-branch    = "git diff --staged | aichat -r git-branch | hx";
+      ai-spell     = "vipe | aichat -r improve-writing | hx";
+      ai-email     = "vipe | aichat -r email-answer | hx";
+      ai-linkedin  = "vipe | aichat -r linkedin-answer | hx";
+      aic          = "ai-commit";
+      aiec         = "ai-emoji-commit";
+      aib          = "ai-branch";
+      ais          = "ai-spell";
+      aie          = "ai-email";
+      ail          = "ai-linkedin";
+      lgit         = "lazygit";
+      ldocker      = "lazydocker";
+      rad          = "rad-tui";
+
+      # Navegação
+      conf  = "z ~/.config";
+      nixos = "z ~/repo";
+      store = "z /nix/store";
+      cl    = "clear";
 
       # Atalhos comuns
       ls  = "eza --icons";
@@ -75,6 +103,34 @@
 
       # Zoxide (cd inteligente)
       zoxide init fish | source
+
+      # Direnv (carrega .envrc em cada projeto)
+      direnv hook fish | source
+
+      # Mise (runtime version manager)
+      mise activate fish | source
+
+      # Transient prompt (limpa prompts anteriores no scroll)
+      enable_transience
+
+      # Vi mode no cursor
+      set fish_vi_force_cursor
+      set fish_cursor_default     block
+      set fish_cursor_insert      line blink
+      set fish_cursor_visual      underscore blink
+
+      # Cor do comando (Catppuccin Macchiato blue)
+      set -g fish_color_command blue
+
+      # FZF — cores Catppuccin Macchiato
+      set -gx FZF_DEFAULT_OPTS "\
+      --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
+      --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
+      --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
+
+      # PATH extras
+      fish_add_path $HOME/.cargo/bin
+      fish_add_path $HOME/.npm-packages/bin
     '';
   };
 
@@ -104,10 +160,12 @@
 
   # ── Variáveis de ambiente do usuário ──────────────────────────────────────
   home.sessionVariables = {
-    EDITOR  = "hx";
-    VISUAL  = "hx";
-    BROWSER = "firefox";
-    PAGER   = "less";
+    EDITOR          = "hx";
+    VISUAL          = "hx";
+    BROWSER         = "firefox";
+    PAGER           = "less";
+    VOLUME_STEP     = "5";
+    BRIGHTNESS_STEP = "5";
   };
 
   # Deixar home-manager gerenciar o próprio ambiente
@@ -130,6 +188,11 @@
     # ── Terminais / Shells ───────────────────────────────────────────────────
     "wezterm".source      = ./.config/wezterm;
     "zellij".source       = ./.config/zellij;
+
+    # Fish: programs.fish gerencia config.fish — linkamos apenas funções e extras
+    "fish/functions".source    = ./.config/fish/functions;
+    "fish/completions".source  = ./.config/fish/completions;
+    "fish/icons".source        = ./.config/fish/icons;
 
     # ── Editores / Dev ───────────────────────────────────────────────────────
     "helix".source        = ./.config/helix;
