@@ -17,3 +17,6 @@ result-*
 # ── Temporários ───────────────────────────────────────────────────────────
 *.bak
 *.tmp
+
+# ── NOTA: legacy/original-xnm1/ NÃO está ignorado ─────────────────────────
+# É commitado como referência histórica do fork original (usuário xnm).

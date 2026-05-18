@@ -24,6 +24,9 @@
 
       # Fontes de código legacy
       fira-code
+
+      # Emoji
+      noto-fonts-color-emoji
     ];
 
     fontconfig = {

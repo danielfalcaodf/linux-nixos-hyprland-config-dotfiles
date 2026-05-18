@@ -43,9 +43,12 @@
 
   environment.systemPackages = with pkgs; [
     # Utilitários Hyprland
+    pyprland         # plugin manager Hyprland
     hyprpaper        # papel de parede
     hyprpicker       # color picker
     hyprcursor       # cursor themes
+    hyprlock         # lockscreen (explícito além de programs.hyprlock)
+    hypridle         # idle daemon (explícito além de services.hypridle)
     hyprpolkitagent  # polkit para Hyprland
     hyprsunset       # night light
 
@@ -67,5 +70,8 @@
     yazi
     thunar
     xfce.thunar-volman
+
+    # Terminal alternativo (estilo retrô)
+    cool-retro-term
   ];
 }

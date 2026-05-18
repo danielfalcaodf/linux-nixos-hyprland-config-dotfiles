@@ -17,7 +17,7 @@ hosts/devdaniel/
 home/
   daniel.nix                          ← Home Manager (shell, git, apps)
 modules/
-  system/    nix-settings, users, networking, firewall, ssh
+  system/    nix-settings, bootloader, users, networking, firewall, ssh, services, printing
   desktop/   hyprland, audio, fonts
   dev/       packages
   homelab/   docker, caddy, dns-local
@@ -26,7 +26,8 @@ stacks/
   portainer/   docker-compose.yml + .env.example
   n8n/         docker-compose.yml + .env.example
   databases/   docker-compose.yml + .env.example
-nixos/         ← Configuração original de referência (não altere)
+legacy/
+  original-xnm1/  ← Configuração original do fork (usuário xnm) — apenas referência
 ```
 
 ---

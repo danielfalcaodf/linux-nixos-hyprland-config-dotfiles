@@ -1,7 +1,9 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   # PipeWire — servidor de áudio moderno para Wayland/Hyprland
+  services.pulseaudio.enable = false;  # PulseAudio desabilitado; usar PipeWire
+
   services.pipewire = {
     enable            = true;
     alsa.enable       = true;
@@ -23,4 +25,11 @@
   };
 
   services.blueman.enable = true;
+
+  # Pacotes de controle de áudio e Bluetooth
+  environment.systemPackages = with pkgs; [
+    pamixer      # controle de volume no terminal
+    pavucontrol  # GUI PulseAudio/PipeWire
+    overskride   # GUI Bluetooth moderna (GTK4)
+  ];
 }

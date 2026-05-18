@@ -29,10 +29,13 @@
 
         # ── Sistema ───────────────────────────────────────────────────────
         ./modules/system/nix-settings.nix
+        ./modules/system/bootloader.nix
         ./modules/system/users.nix
         ./modules/system/networking.nix
         ./modules/system/firewall.nix
         ./modules/system/ssh.nix
+        ./modules/system/services.nix
+        ./modules/system/printing.nix
 
         # ── Desktop ───────────────────────────────────────────────────────
         ./modules/desktop/hyprland.nix
