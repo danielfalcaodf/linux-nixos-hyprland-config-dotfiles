@@ -101,6 +101,6 @@
   ];
 
   # Rust via rustup (não nixpkgs) — mais controle sobre toolchain
-  environment.variables.CARGO_HOME = "/home/daniel/.cargo";
-  environment.variables.RUSTUP_HOME = "/home/daniel/.rustup";
+  environment.variables.CARGO_HOME = "/home/devdaniel/.cargo";
+  environment.variables.RUSTUP_HOME = "/home/devdaniel/.rustup";
 }

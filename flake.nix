@@ -64,7 +64,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.daniel = import ./home/daniel.nix;
+          home-manager.users.devdaniel = import ./home/devdaniel.nix;
           home-manager.backupFileExtension = "bak";
         }
       ];
