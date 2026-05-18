@@ -57,7 +57,7 @@
     # Bar / notificações / launcher
     waybar
     dunst
-    rofi-wayland
+    rofi
 
     # Capturas de tela e gravação
     grim
