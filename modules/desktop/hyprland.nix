@@ -13,6 +13,10 @@
     WLR_NO_HARDWARE_CURSORS = "1"; # Evita bug de cursor em VMs/remote
     XDG_SESSION_TYPE  = "wayland";
     XDG_CURRENT_DESKTOP = "Hyprland";
+    # ── VM: forçar renderização software (VirtualBox não tem GPU Vulkan/DRM real) ──
+    WLR_RENDERER_ALLOW_SOFTWARE = "1";
+    LIBGL_ALWAYS_SOFTWARE       = "1";
+    WLR_BACKENDS                = "x11,rdp"; # evita DRM que não existe na VM
   };
 
   # Componentes Hyprland
