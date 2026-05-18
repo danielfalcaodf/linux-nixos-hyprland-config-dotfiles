@@ -65,6 +65,12 @@
     lazydocker
     dive                  # inspecionar layers Docker
 
+    # ── Utilitários de sistema / hardware ────────────────────────────────
+    brightnessctl         # controle de brilho (usado por hypridle.conf)
+    firejail              # sandbox de aplicações (usado para Discord)
+    wl-screenrec          # gravação de tela Wayland (waybar check: pgrep wl-screenrec)
+    iwgtk                 # GUI WiFi GTK (waybar: network right-click)
+
     # ── Build e compilação ───────────────────────────────────────────────
     gcc
     clang
