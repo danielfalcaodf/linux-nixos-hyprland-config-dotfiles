@@ -21,7 +21,7 @@
     ];
 
     # Usuários confiáveis para usar caches adicionais
-    trusted-users = [ "root" "daniel" ];
+    trusted-users = [ "root" "devdaniel" ];
   };
 
   # Coleta de lixo automática semanal

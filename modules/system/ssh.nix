@@ -15,7 +15,7 @@
       PermitRootLogin = "no";
 
       # Apenas usuários explicitamente listados podem conectar
-      AllowUsers = [ "daniel" ];
+      AllowUsers = [ "devdaniel" ];
 
       # Hardening adicional
       X11Forwarding = false;

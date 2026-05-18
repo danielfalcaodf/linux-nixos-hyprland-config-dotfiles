@@ -6,7 +6,7 @@ return {
   enable_wayland = true,
   prefer_egl = true,
   front_end = "WebGpu",
-  webgpu_preferred_adapter = gpus[2],
+  webgpu_preferred_adapter = gpus[1],
   color_scheme = 'Catppuccin Macchiato',
   enable_tab_bar = false,
   inactive_pane_hsb = {
@@ -24,7 +24,7 @@ return {
     },
     {
       source = {
-        File = '/home/xnm/.config/wezterm/lain.gif',
+        File = '/home/devdaniel/.config/wezterm/lain.gif',
       },
       opacity = 0.02,
       vertical_align = "Middle",
