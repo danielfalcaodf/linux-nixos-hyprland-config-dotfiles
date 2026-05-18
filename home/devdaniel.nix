@@ -112,4 +112,50 @@
 
   # Deixar home-manager gerenciar o próprio ambiente
   programs.home-manager.enable = true;
+
+  # ── Dotfiles — deploya home/.config/ para ~/.config/ ─────────────────────
+  # fish, kitty e starship são gerenciados pelos blocks programs.* acima.
+  # Os demais são linkados diretamente do repositório.
+  xdg.configFile = {
+    # ── Desktop / Hyprland ──────────────────────────────────────────────────
+    "hypr".source         = ./.config/hypr;
+    "waybar".source       = ./.config/waybar;
+    "rofi".source         = ./.config/rofi;
+    "dunst".source        = ./.config/dunst;
+    "pypr".source         = ./.config/pypr;
+    "wlogout".source      = ./.config/wlogout;
+    "avizo".source        = ./.config/avizo;
+    "swappy".source       = ./.config/swappy;
+
+    # ── Terminais / Shells ───────────────────────────────────────────────────
+    "wezterm".source      = ./.config/wezterm;
+    "zellij".source       = ./.config/zellij;
+
+    # ── Editores / Dev ───────────────────────────────────────────────────────
+    "helix".source        = ./.config/helix;
+    "lazygit".source      = ./.config/lazygit;
+    "gh-dash".source      = ./.config/gh-dash;
+    "posting".source      = ./.config/posting;
+
+    # ── TUIs / Utilitários ───────────────────────────────────────────────────
+    "btop".source         = ./.config/btop;
+    "cava".source         = ./.config/cava;
+    "yazi".source         = ./.config/yazi;
+    "zathura".source      = ./.config/zathura;
+    "fastfetch".source    = ./.config/fastfetch;
+    "bat".source          = ./.config/bat;
+    "bottom".source       = ./.config/bottom;
+    "tealdeer".source     = ./.config/tealdeer;
+
+    # ── Multimídia ───────────────────────────────────────────────────────────
+    "mpv".source          = ./.config/mpv;
+
+    # ── GTK / Tema ───────────────────────────────────────────────────────────
+    "Kvantum".source      = ./.config/Kvantum;
+    "gtk-3.0".source      = ./.config/gtk-3.0;
+    "gtk-4.0".source      = ./.config/gtk-4.0;
+
+    # ── Apps ─────────────────────────────────────────────────────────────────
+    "qutebrowser".source  = ./.config/qutebrowser;
+  };
 }
