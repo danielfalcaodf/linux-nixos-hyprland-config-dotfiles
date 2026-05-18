@@ -20,13 +20,10 @@
       source-han-sans   # CJK (Chinês, Japonês, Coreano)
       noto-fonts
       noto-fonts-cjk-sans
-      noto-fonts-emoji
+      noto-fonts-color-emoji   # foi noto-fonts-emoji (renomeado upstream)
 
       # Fontes de código legacy
       fira-code
-
-      # Emoji
-      noto-fonts-color-emoji
     ];
 
     fontconfig = {
