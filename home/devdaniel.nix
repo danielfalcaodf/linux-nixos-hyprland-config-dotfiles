@@ -3,8 +3,8 @@
 # Home Manager — configuração do ambiente do usuário daniel
 # Este arquivo é gerenciado pelo módulo home-manager no flake.nix
 {
-  home.username    = "daniel";
-  home.homeDirectory = "/home/daniel";
+  home.username    = "devdaniel";
+  home.homeDirectory = "/home/devdaniel";
 
   # Compatível com a versão do home-manager importada no flake
   home.stateVersion = "25.05";

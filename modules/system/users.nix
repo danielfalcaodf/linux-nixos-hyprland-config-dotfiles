@@ -2,7 +2,7 @@
 
 {
   # Definição do usuário principal
-  users.users.daniel = {
+  users.users.devdaniel = {
     isNormalUser = true;
     description  = "Daniel";
     shell        = pkgs.fish;
