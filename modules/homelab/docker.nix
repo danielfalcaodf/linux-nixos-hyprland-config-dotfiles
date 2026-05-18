@@ -25,9 +25,7 @@
 
   # Pacotes adicionais para trabalhar com Docker
   environment.systemPackages = with pkgs; [
-    docker-compose   # docker compose v2
     lazydocker       # TUI para Docker
-    dive             # inspecionar layers de imagens
     ctop             # top para containers
   ];
 }

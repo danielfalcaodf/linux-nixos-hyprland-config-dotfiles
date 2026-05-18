@@ -24,7 +24,6 @@
 
       # Fontes de código legacy
       fira-code
-      fira-code-symbols
     ];
 
     fontconfig = {

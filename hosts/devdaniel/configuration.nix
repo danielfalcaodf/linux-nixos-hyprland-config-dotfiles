@@ -36,9 +36,6 @@
   # ── Pacotes globais mínimos ───────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     vim
-    wget
-    curl
-    git
   ];
 
   # IMPORTANTE: não altere este valor após a primeira instalação.

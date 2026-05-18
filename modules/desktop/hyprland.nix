@@ -26,13 +26,17 @@
       xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk
     ];
+    config = {
+      common.default = [ "hyprland" "gtk" ];
+      hyprland.default = [ "hyprland" "gtk" ];
+    };
   };
 
   # Display manager: greetd + tuigreet (leve, sem GNOME)
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd 'uwsm start hyprland-uwsm.desktop'";
       user    = "greeter";
     };
   };
