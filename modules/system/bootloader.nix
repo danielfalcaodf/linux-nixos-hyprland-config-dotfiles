@@ -4,24 +4,20 @@
 # ATENÇÃO: não altere boot.loader.* após a primeira instalação sem backups.
 #
 # Plymouth provê animação visual durante o boot. O tema catppuccin-macchiato
-# é consistente com o tema do sistema. Não é o gerenciador de boot em si —
-# apenas a tela de splash que aparece antes do login.
+# é consistente com o tema do sistema.
+#
+# ── VM vs Bare-metal ─────────────────────────────────────────────────────────
+# Esta branch (feat/vm-compat) tem Plymouth e initrd.systemd DESATIVADOS para
+# compatibilidade com VMs (sem suporte KMS/DRM).
+# Para bare-metal, use a branch feat/devdaniel-nixos-config que os habilita.
 {
   # ── Configurações do bootloader ───────────────────────────────────────────
-  # NOTA: boot.loader.systemd-boot.enable e boot.loader.efi.canTouchEfiVariables
-  # são definidos em hosts/devdaniel/configuration.nix (específicos do hardware).
-
-  boot.loader.timeout = 2;      # segundos para selecionar o sistema no menu
+  boot.loader.timeout = 2;
 
   # ── Kernel / initrd ───────────────────────────────────────────────────────
-  boot.consoleLogLevel = 3;            # suprimir mensagens verbose do kernel
-  boot.initrd.systemd.enable = true;   # systemd no initrd (mais rápido e confiável)
+  boot.consoleLogLevel = 3;
+  # boot.initrd.systemd.enable desativado — causa travamento em VM sem KMS
 
-  # ── Plymouth — splash screen ──────────────────────────────────────────────
-  boot.plymouth = {
-    enable = true;
-    font   = "${pkgs.jetbrains-mono}/share/fonts/truetype/JetBrainsMono-Regular.ttf";
-    themePackages = [ pkgs.catppuccin-plymouth ];
-    theme  = "catppuccin-macchiato";
-  };
+  # ── Plymouth desativado (VM sem suporte KMS/DRM) ──────────────────────────
+  boot.plymouth.enable = false;
 }
