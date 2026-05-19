@@ -478,15 +478,113 @@ passwd devdaniel
 Ctrl+Alt+F1
 ```
 
-### Instalar certificado CA do Caddy (para HTTPS local)
+### DNS local e CA do Caddy
+
+O workstation age como **servidor DNS local** para toda a rede, resolvendo `*.devdaniel.home.arpa`.
+
+#### 1. Configure o IP estático do workstation
+
+Edite `modules/homelab/dns-local.nix` e defina `workstationLanIP`:
+
+```nix
+let
+  workstationLanIP = "192.168.1.100";  # ← altere para o IP real
+```
+
+Para definir o IP estático via NixOS (adicione em `configuration.nix` ou `networking.nix`):
+
+```nix
+networking.interfaces.enp3s0.ipv4.addresses = [{  # ← troque a interface
+  address      = "192.168.1.100";
+  prefixLength = 24;
+}];
+networking.defaultGateway = "192.168.1.1";
+```
+
+Descubra a interface e IP atual:
 
 ```bash
-# Após o primeiro nixos-rebuild switch com Caddy ativo:
-sudo cp /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt \
-        /usr/local/share/ca-certificates/caddy-local.crt
+ip route | grep default          # ex: default via 192.168.1.1 dev enp3s0
+ip addr show enp3s0              # IP atual
+```
+
+#### 2. Aplique a config no workstation
+
+```bash
+sudo nixos-rebuild switch --flake .#devdaniel
+
+# Verifique o dnsmasq
+systemctl status dnsmasq
+dig portainer.devdaniel.home.arpa @127.0.0.1   # deve retornar 192.168.1.100
+```
+
+#### 3. Configure os outros PCs para usar este DNS
+
+**Opção A — Configuração por PC (manual):**
+
+```bash
+# Linux com NetworkManager:
+nmcli con show                                  # anote o nome da conexão
+nmcli con mod "Nome da Conexão" ipv4.dns "192.168.1.100"
+nmcli con mod "Nome da Conexão" ipv4.ignore-auto-dns yes
+nmcli con up  "Nome da Conexão"
+
+# Teste:
+dig portainer.devdaniel.home.arpa               # deve retornar 192.168.1.100
+curl -k https://portainer.devdaniel.home.arpa   # deve responder (TLS warning = normal antes de instalar o CA)
+```
+
+```powershell
+# Windows (PowerShell como Admin):
+Get-NetAdapter                                  # anote o nome da interface
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses "192.168.1.100"
+
+# Teste:
+Resolve-DnsName portainer.devdaniel.home.arpa
+```
+
+**Opção B — Via roteador (recomendado, todos os PCs recebem automaticamente):**
+
+Acesse o painel do roteador → DHCP → DNS Server → defina `192.168.1.100`.
+Todos os novos clientes DHCP receberão o DNS do workstation automaticamente.
+
+#### 4. Instale o CA do Caddy para confiar no HTTPS
+
+O CA é exportado automaticamente pelo Caddy e disponível em HTTP na porta 8888.
+
+```bash
+# No workstation (após nixos-rebuild):
+systemctl status caddy-export-ca
+ls -la /etc/caddy/ca.crt                        # deve existir
+
+# Em outro PC da mesma rede:
+curl -O http://192.168.1.100:8888/ca.crt        # baixa o CA cert
+
+# Linux (Debian/Ubuntu/NixOS com update-ca-certificates):
+sudo cp ca.crt /usr/local/share/ca-certificates/caddy-devdaniel.crt
 sudo update-ca-certificates
 
-# Ou importe o root.crt diretamente no navegador (Firefox: Preferências → Certificados)
+# Linux (Arch/Fedora com update-ca-trust):
+sudo cp ca.crt /etc/pki/ca-trust/source/anchors/caddy-devdaniel.crt
+sudo update-ca-trust
+
+# Firefox (qualquer OS):
+# Preferências → Privacidade → Certificados → Importar → selecione ca.crt
+# Marque "Confiar para identificar sites"
+
+# Windows (PowerShell Admin):
+Import-Certificate -FilePath ca.crt -CertStoreLocation Cert:\LocalMachine\Root
+
+# macOS:
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ca.crt
+```
+
+**Verificação final (em outro PC após instalar CA e DNS):**
+
+```bash
+curl https://portainer.devdaniel.home.arpa      # sem erro de certificado
+curl https://n8n.devdaniel.home.arpa
+curl https://home.devdaniel.home.arpa
 ```
 
 ### Subir os Docker Stacks
